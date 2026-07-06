@@ -839,6 +839,7 @@ async function handleSend(){
     try{
       const base64Only = imgToEdit.dataUrl.split(',')[1];
       const imgEl = await puter.ai.txt2img(text, {
+        provider: 'gemini',
         model: 'gemini-3-pro-image-preview',
         input_image: base64Only,
         input_image_mime_type: imgToEdit.mimeType
@@ -849,7 +850,9 @@ async function handleSend(){
       addMessageToSession('ai', url, 'image');
     }catch(e){
       thinkingRow.remove();
-      const msg = 'Could not edit the image. ' + (e && e.message ? e.message : 'Please try again.');
+      let detail = '';
+      try{ detail = (e && e.message) ? e.message : (typeof e === 'string' ? e : JSON.stringify(e)); }catch(_){ detail = 'Please try again.'; }
+      const msg = 'Could not edit the image. ' + detail;
       renderMessage('ai', msg, 'text');
       addMessageToSession('ai', msg, 'text');
     }
@@ -876,14 +879,16 @@ async function handleSend(){
     }
 
     try{
-      const imgEl = await puter.ai.txt2img(text, { model: 'gpt-image-1.5' });
+      const imgEl = await puter.ai.txt2img(text, { provider: 'openai-image-generation', model: 'gpt-image-1.5' });
       thinkingRow.remove();
       const url = imgEl.src;
       renderMessage('ai', url, 'image');
       addMessageToSession('ai', url, 'image');
     }catch(e){
       thinkingRow.remove();
-      const msg = 'Could not generate the image. ' + (e && e.message ? e.message : 'Please try again.');
+      let detail = '';
+      try{ detail = (e && e.message) ? e.message : (typeof e === 'string' ? e : JSON.stringify(e)); }catch(_){ detail = 'Please try again.'; }
+      const msg = 'Could not generate the image. ' + detail;
       renderMessage('ai', msg, 'text');
       addMessageToSession('ai', msg, 'text');
     }
